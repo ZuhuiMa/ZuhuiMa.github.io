@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zuhuima.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="K8S离线安装图文教程环境机器环境： 系统版本：Centos-7 内核版本：3.10.0-1160.el7.x86_64 master：192.168.21.148&#x2F;24 worker：192.168.21.149&#x2F;24">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于k8seasy的k8s集群离线部署教程">
+<meta property="og:url" content="https://zuhuima.github.io/2022/01/02/%E5%9F%BA%E4%BA%8Ek8seasy%E7%9A%84k8s%E9%9B%86%E7%BE%A4%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="马祖晖的个人笔记">
+<meta property="og:description" content="K8S离线安装图文教程环境机器环境： 系统版本：Centos-7 内核版本：3.10.0-1160.el7.x86_64 master：192.168.21.148&#x2F;24 worker：192.168.21.149&#x2F;24">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zuhuima.github.io/2022/01/02/%E5%9F%BA%E4%BA%8Ek8seasy%E7%9A%84k8s%E9%9B%86%E7%BE%A4%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/image-20210709160538461.png">
+<meta property="og:image" content="c:%5CUsers%5Cmazuhui%5CDownloads%5Coffline_package%5C%E5%9B%BE%E6%96%87%E6%95%99%E7%A8%8B%5Cimage-20210705134802284.png">
+<meta property="article:published_time" content="2022-01-02T08:29:23.000Z">
+<meta property="article:modified_time" content="2022-04-27T11:26:32.161Z">
+<meta property="article:author" content="马祖晖">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zuhuima.github.io/2022/01/02/%E5%9F%BA%E4%BA%8Ek8seasy%E7%9A%84k8s%E9%9B%86%E7%BE%A4%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/image-20210709160538461.png">
+
+<link rel="canonical" href="https://zuhuima.github.io/2022/01/02/%E5%9F%BA%E4%BA%8Ek8seasy%E7%9A%84k8s%E9%9B%86%E7%BE%A4%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于k8seasy的k8s集群离线部署教程 | 马祖晖的个人笔记</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">马祖晖的个人笔记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">做人最重要的就是开心啦</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zuhuima.github.io/2022/01/02/%E5%9F%BA%E4%BA%8Ek8seasy%E7%9A%84k8s%E9%9B%86%E7%BE%A4%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="马祖晖">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马祖晖的个人笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于k8seasy的k8s集群离线部署教程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-02 16:29:23" itemprop="dateCreated datePublished" datetime="2022-01-02T16:29:23+08:00">2022-01-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-27 19:26:32" itemprop="dateModified" datetime="2022-04-27T19:26:32+08:00">2022-04-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="K8S离线安装图文教程"><a href="#K8S离线安装图文教程" class="headerlink" title="K8S离线安装图文教程"></a>K8S离线安装图文教程</h1><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>机器环境：</p>
+<p>系统版本：Centos-7</p>
+<p>内核版本：3.10.0-1160.el7.x86_64</p>
+<p>master：192.168.21.148/24</p>
+<p>worker：192.168.21.149/24</p>
+<a id="more"></a>
+
+<h2 id="网络拓扑图"><a href="#网络拓扑图" class="headerlink" title="网络拓扑图"></a>网络拓扑图</h2><img src=".\image-20210709160538461.png" alt="image-20210709160538461" style="zoom:67%;" />
+
+<p>在本次教程中，我们将会构建一个一主（Master）一从（Worker）的非高可用K8S集群。如果需要增加从节点数，重复第二步即可。如果需要构建真正的高可用K8S集群，请自行百度“K8SEASY：一键安装K8S高可用集群”并对本教程稍加修改即可。</p>
+<h2 id="部署流程"><a href="#部署流程" class="headerlink" title="部署流程"></a>部署流程</h2><h3 id="0-准备步骤"><a href="#0-准备步骤" class="headerlink" title="0 准备步骤"></a>0 准备步骤</h3><h4 id="0-1-传输文件"><a href="#0-1-传输文件" class="headerlink" title="0.1 传输文件"></a>0.1 传输文件</h4><p>将offline_package文件夹中的k8seasy传输到所有需要部署K8S集群的机器上</p>
+<h4 id="0-2-设置静态ip"><a href="#0-2-设置静态ip" class="headerlink" title="0.2 设置静态ip"></a>0.2 设置静态ip</h4><p>修改以太网地址，从dhcp修改为静态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens33</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#BOOTPROTO="dhcp"         # 注释掉dhcp</span></span><br><span class="line">BOOTPROTO=<span class="string">"static"</span>         <span class="comment"># 修改为静态ip模式</span></span><br><span class="line">IPADDR=<span class="string">"192.168.21.148"</span>   <span class="comment"># 设置为当前ip</span></span><br><span class="line">NETMASK=<span class="string">"255.255.255.0"</span>    <span class="comment"># 设置为当前掩码</span></span><br><span class="line">GATEWAY=<span class="string">"192.168.21.2"</span>    <span class="comment"># 设置为当前网关</span></span><br><span class="line">DNS1=<span class="string">"192.168.21.2"</span>       <span class="comment"># 设置为网关</span></span><br></pre></td></tr></table></figure>
+
+<p>重启网络后测试主机之间是否可以互相访问</p>
+<h4 id="0-3-设置时间服务器同步"><a href="#0-3-设置时间服务器同步" class="headerlink" title="0.3 设置时间服务器同步"></a>0.3 设置时间服务器同步</h4><h5 id="0-3-1-安装ntp服务"><a href="#0-3-1-安装ntp服务" class="headerlink" title="0.3.1 安装ntp服务"></a>0.3.1 安装ntp服务</h5><p>进入ntp文件夹，安装npt服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh autogen-libopts-5.18-5.el7.x86_64.rpm</span><br><span class="line">rpm -ivh ntpdate-4.2.6p5-29.el7.centos.2.x86_64.rpm</span><br><span class="line">rpm -ivh ntp-4.2.6p5-29.el7.centos.2.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h5 id="0-3-2-配置ntp服务端"><a href="#0-3-2-配置ntp服务端" class="headerlink" title="0.3.2 配置ntp服务端"></a>0.3.2 配置ntp服务端</h5><p>修改ntp server配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/ntp.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注释掉原有的时间源</span></span><br><span class="line"><span class="comment">#server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#添加</span></span><br><span class="line">restrict -6 ::1</span><br><span class="line">restrict 192.168.21.0 mask 255.255.255.0 nomodify notrap  <span class="comment">#ip修改为当前IP网段</span></span><br><span class="line">server 127.127.1.0</span><br><span class="line">fudge 127.127.1.0 stratum 1</span><br></pre></td></tr></table></figure>
+
+<p>参数解释：</p>
+<p>restrict [your_ip] mask [netmask_IP] [parameter]</p>
+<p>其中parameter 的参数主要有底下这些：</p>
+<ul>
+<li>ignore：拒绝所有类型的NTP联机；</li>
+<li>nomodify：客户端不能使用ntpc与ntpq这两支程序来修改服务器的时间参数，但客户端仍可透过这部主机来进行网络校时的；</li>
+<li>noquery：客户端不能够使用ntpq, ntpc等指令来查询时间服务器，等于不提供NTP的网络校时啰；</li>
+<li>notrap：不提供trap这个远程事件登录(remote event logging)的功能。</li>
+<li>notrust：拒绝没有认证的客户端。</li>
+</ul>
+<h5 id="0-3-3-配置ntp客户端"><a href="#0-3-3-配置ntp客户端" class="headerlink" title="0.3.3 配置ntp客户端"></a>0.3.3 配置ntp客户端</h5><p>修改ntp client配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/ntp.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注释掉原有的时间源</span></span><br><span class="line"><span class="comment">#server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="comment">#添加</span></span><br><span class="line">restrict -6 ::1</span><br><span class="line">restrict 192.168.21.0 mask 255.255.255.0 nomodify notrap</span><br><span class="line">server 192.168.21.148 prefer</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="0-3-4-启动服务和设置开机启动"><a href="#0-3-4-启动服务和设置开机启动" class="headerlink" title="0.3.4 启动服务和设置开机启动"></a>0.3.4 启动服务和设置开机启动</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service ntpd start &amp;&amp; chkconfig ntpd on</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="0-3-5-查看服务状态"><a href="#0-3-5-查看服务状态" class="headerlink" title="0.3.5 查看服务状态"></a>0.3.5 查看服务状态</h5><h6 id="查看ntp服务有无与上层ntp连通"><a href="#查看ntp服务有无与上层ntp连通" class="headerlink" title="查看ntp服务有无与上层ntp连通"></a>查看ntp服务有无与上层ntp连通</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ntpstat</span><br></pre></td></tr></table></figure>
+
+<p>查看ntp状态时，可能会出现如下所示情况，</p>
+<p>① unsynchronised time server re-starting polling server every 8 s</p>
+<p>② unsynchronised polling server every 8 s</p>
+<p>这种情况属于正常，ntp服务器配置完毕后，需要等待5-10分钟才能与/etc/ntp.conf中配置的标准时间进行同步。</p>
+<p>等一段时间之后，再次使用ntpstat命令查看状态，会正常显示同步。</p>
+<h6 id="查看ntp服务器与上层ntp的状态"><a href="#查看ntp服务器与上层ntp的状态" class="headerlink" title="查看ntp服务器与上层ntp的状态"></a>查看ntp服务器与上层ntp的状态</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ntpq -p</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h3 id="1-部署Master机器"><a href="#1-部署Master机器" class="headerlink" title="1 部署Master机器"></a>1 部署Master机器</h3><h4 id="1-1-升级系统内核"><a href="#1-1-升级系统内核" class="headerlink" title="1.1 升级系统内核"></a>1.1 升级系统内核</h4><p>进入offline_package/k8seasy文件夹，切换到su用户</p>
+<p>使用yum命令离线升级centos内核，获得更好的docker支持</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall -y kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64.rpm kernel<span class="_">-lt</span>devel-5.4.107-1.el7.elrepo.x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Examining kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64.rpm: kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64</span><br><span class="line">Marking kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64.rpm to be installed</span><br><span class="line">Cannot open: kernel-ltdevel-5.4.107-1.el7.elrepo.x86_64.rpm. Skipping.</span><br><span class="line">Resolving Dependencies</span><br><span class="line">--&gt; Running transaction check</span><br><span class="line">---&gt; Package kernel-lt.x86_64 0:5.4.107-1.el7.elrepo will be installed</span><br><span class="line">--&gt; Finished Dependency Resolution</span><br><span class="line"></span><br><span class="line">Dependencies Resolved</span><br><span class="line"></span><br><span class="line">========================================================================================================================</span><br><span class="line"> Package            Arch            Version                       Repository                                       Size</span><br><span class="line">========================================================================================================================</span><br><span class="line">Installing:</span><br><span class="line"> kernel<span class="_">-lt</span>          x86_64          5.4.107-1.el7.elrepo          /kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64          227 M</span><br><span class="line"></span><br><span class="line">Transaction Summary</span><br><span class="line">========================================================================================================================</span><br><span class="line">Install  1 Package</span><br><span class="line"></span><br><span class="line">Total size: 227 M</span><br><span class="line">Installed size: 227 M</span><br><span class="line">Downloading package</span><br><span class="line">Running transaction check</span><br><span class="line">Running transaction <span class="built_in">test</span></span><br><span class="line">Transaction <span class="built_in">test</span> succeeded</span><br><span class="line">Running transaction</span><br><span class="line">  Installing : kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64                                                                1/1</span><br><span class="line">  Verifying  : kernel<span class="_">-lt</span>-5.4.107-1.el7.elrepo.x86_64                                                                1/1</span><br><span class="line"></span><br><span class="line">Installed:</span><br><span class="line">  kernel-lt.x86_64 0:5.4.107-1.el7.elrepo</span><br><span class="line">Complete!</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-2-更新系统内核"><a href="#1-2-更新系统内核" class="headerlink" title="1.2 更新系统内核"></a>1.2 更新系统内核</h4><p>现在系统默认引导的版本仍然是原来的3.10.0，需要重建内核使机器默认使用新内核版本。</p>
+<p>设置内核版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/default/grub</span><br></pre></td></tr></table></figure>
+
+<p>修改GRUB_DEFAULT的值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_DEFAULT=0</span><br></pre></td></tr></table></figure>
+
+<p>保存文档并退出，重新创建内核配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grub2-mkconfig -o /boot/grub2/grub.cfg</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Generating grub configuration file ...</span><br><span class="line">Found linux image: /boot/vmlinuz-5.4.107-1.el7.elrepo.x86_64</span><br><span class="line">Found initrd image: /boot/initramfs-5.4.107-1.el7.elrepo.x86_64.img</span><br><span class="line">Found linux image: /boot/vmlinuz-3.10.0-1160.el7.x86_64</span><br><span class="line">Found initrd image: /boot/initramfs-3.10.0-1160.el7.x86_64.img</span><br><span class="line">Found linux image: /boot/vmlinuz-0-rescue-480eaaf509894ab6b64dec5d1041a8c4</span><br><span class="line">Found initrd image: /boot/initramfs-0-rescue-480eaaf509894ab6b64dec5d1041a8c4.img</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>重启后查看内核</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure>
+
+<p>输出应该为：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux bogon <span class="number">5.4</span><span class="number">.107</span><span class="number">-1.</span>el7.elrepo.x86_64 #<span class="number">1</span> SMP Sat Mar <span class="number">20</span> <span class="number">09</span>:<span class="number">47</span>:<span class="number">18</span> EDT <span class="number">2021</span> x86_64 x86_64 x86_64 GNU/Linux</span><br></pre></td></tr></table></figure>
+
+<p>如果输出仍然为3.10.0，请检查grub.cfg文件并重新配置内核</p>
+<h4 id="1-3-生成K8S集群密钥"><a href="#1-3-生成K8S集群密钥" class="headerlink" title="1.3 生成K8S集群密钥"></a>1.3 生成K8S集群密钥</h4><p>回到k8seasy文件夹中，运行以下命令</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod <span class="number">755</span> ./installer</span><br><span class="line">./installer --genkey -hostlist=<span class="number">192.168</span><span class="number">.21</span><span class="number">.148</span></span><br></pre></td></tr></table></figure>
+
+<p>此时会在installer同级目录下生成密钥k8skey.pem，此密钥将用于后续新节点的加入。</p>
+<p>-hostlist接收一个ip地址作为密钥生成的必须参数，在本次教程中由于master机器的ip是192.168.21.148，在后续部署过程中视master机器ip地址而定。</p>
+<h4 id="1-4-安装K8S"><a href="#1-4-安装K8S" class="headerlink" title="1.4 安装K8S"></a>1.4 安装K8S</h4><p>执行以下命令，拉起一个单节点k8s集群（只含master节点）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./installer -kubernetestarfile kubernetes-server-linux-amd64.tar.gz -masterip 192.168.21.14</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">master:  192.168.21.148</span><br><span class="line">IP: 192.168.21.148  Eth: ens33</span><br><span class="line">1&gt; Upgrade system.</span><br><span class="line">2&gt; Install etcd.</span><br><span class="line">3&gt; Install flanneld.</span><br><span class="line">4&gt; Install haproxy.</span><br><span class="line">5&gt; Update kubernets env.</span><br><span class="line">6&gt; Install K8S API Server.</span><br><span class="line">7&gt; Install K8S Controller Server.</span><br><span class="line">8&gt; Install K8S Scheduler Server.</span><br><span class="line">9&gt; Install Docker.</span><br><span class="line">...............</span><br><span class="line">10&gt; Update Kubeadm env.</span><br><span class="line">11&gt; Install kubelet.</span><br><span class="line">12&gt; Install K8S Proxy.</span><br><span class="line">13&gt; Install coredns.</span><br><span class="line">14&gt; Install monitoring &amp; dashboard.</span><br><span class="line">15&gt; Install Helm.</span><br><span class="line">16&gt; Install nginx-ingress.</span><br><span class="line">17&gt; Install localwebproxy.</span><br><span class="line">请使用浏览器 访问 alertmanager  http://192.168.21.148:8080</span><br><span class="line">请使用浏览器 访问 grafana  http://192.168.21.148:8081   默认用户名 admin  默认密码 admin</span><br><span class="line">请使用浏览器 访问 prometheus http://192.168.21.148:8082</span><br><span class="line">请使用浏览器 访问 node_export http://192.168.21.148:9100</span><br><span class="line">请使用浏览器 访问 dashboard http://192.168.21.148:10000</span><br><span class="line">You can find more detail about alertmanager by visiting http://192.168.21.148:8080</span><br><span class="line">You can find more detail about grafana by visiting http://192.168.21.148:8081   the default user: admin   pass: admin</span><br><span class="line">You can find more detail about prometheus by visiting http://192.168.21.148:8082</span><br><span class="line">You can find more detail about node_export by visiting http://192.168.21.148:9100</span><br><span class="line">You can find more detail about dashboard by visiting http://192.168.21.148:10000</span><br><span class="line">18&gt; Install localwebproxy.</span><br><span class="line">已经复制了一个配置文件 lens.kubeconfig 在当前目录，这个配置文件可以被 各种管理工具（如lens) 直接使用</span><br><span class="line">请在 /etc/hosts 文件里加入 如下内容</span><br><span class="line">192.168.21.148  s4560572675.lens.k8seasy.com</span><br><span class="line">其中192.168.21.148 为本机的IP, 也可以为任何管理工具直接能访问的本机IP （如本机有多个ip 可以任选一个</span><br><span class="line">K8Seasy is a tools that can <span class="built_in">help</span> you quickly deploy Kubernetes clusters to <span class="built_in">local</span> and cloud environmental.</span><br><span class="line">K8S version: 1.11.3-1.18</span><br><span class="line">installer version: 1.0.0.004</span><br><span class="line">Packfile version: 2020.10.02.001</span><br><span class="line">Packfile: pack.2020.10.02.bin</span><br><span class="line">Packfile md5sum: 06222ec7e9dfd17efe318e94540c019d</span><br><span class="line">Build Time: 2021-05-03_02:17:55PM</span><br><span class="line">Git Hash: 891516b24c2b73d57d5ef676b4505f1d285cc970</span><br><span class="line">Website:  http://www.k8seasy.com  https://github.com/xiaojiaqi/k8seasy_release_page</span><br><span class="line">Feature Request/Bug Report Form: https://github.com/xiaojiaqi/k8seasy_release_page/issues</span><br><span class="line">Email:  k8seasy@gmail.com</span><br><span class="line">License: Personal non-commercial use. License cannot be used either directly or indirectly <span class="keyword">for</span> business purposes.</span><br></pre></td></tr></table></figure>
+
+<p>可以看到部署出来的k8s集群自带很多监控插件，有兴趣的可以逐一尝试。</p>
+<h4 id="1-5-验证集群是否拉起成功"><a href="#1-5-验证集群是否拉起成功" class="headerlink" title="1.5 验证集群是否拉起成功"></a>1.5 验证集群是否拉起成功</h4><p>由于该安装方法自带dashboard且暴露在10000端口下，直接访问192.168.21.148就可以查看集群状态。</p>
+<h3 id="2-部署Worker机器"><a href="#2-部署Worker机器" class="headerlink" title="2 部署Worker机器"></a>2 部署Worker机器</h3><h4 id="2-1-升级系统内核"><a href="#2-1-升级系统内核" class="headerlink" title="2.1 升级系统内核"></a>2.1 升级系统内核</h4><p>同1.1</p>
+<h4 id="2-2-复制K8S集群密钥到worker"><a href="#2-2-复制K8S集群密钥到worker" class="headerlink" title="2.2 复制K8S集群密钥到worker"></a>2.2 复制K8S集群密钥到worker</h4><p>切换到master机器上，将步骤1.3中生成的k8skey.pem传输到worker机器上的k8seasy文件夹中。</p>
+<h4 id="2-3-安装K8S并加入集群"><a href="#2-3-安装K8S并加入集群" class="headerlink" title="2.3 安装K8S并加入集群"></a>2.3 安装K8S并加入集群</h4><p>执行以下命令，将worker机器添加到现有集群中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 ./installer</span><br><span class="line">./installer -kubernetestarfile kubernetes-server-linux-amd64.tar.gz -masterip 192.168.21.148</span><br></pre></td></tr></table></figure>
+
+<p>访问dashboard，点击node，可以看到新加入的worker机器就代表部署成功。</p>
+<p>如果想继续添加从节点，一直重复步骤2即可。</p>
+<h3 id="3-调试K8S集群"><a href="#3-调试K8S集群" class="headerlink" title="3 调试K8S集群"></a>3 调试K8S集群</h3><h4 id="3-1-增加ingress-nginx服务"><a href="#3-1-增加ingress-nginx服务" class="headerlink" title="3.1 增加ingress-nginx服务"></a>3.1 增加ingress-nginx服务</h4><p>由于未知原因，本自动部署脚本没有配置好ingress-nginx服务，集群对外暴露服务功能不完备。</p>
+<p>可以通过以下步骤修复：</p>
+<p>访问dashboard，点击搜索框左边下拉框，选择ingress-nginx，点击右上角的+号，会跳转到一个文本框里面（这个文本框用于输入yaml格式的数据以新建k8s资源）。</p>
+<p><img src="C:%5CUsers%5Cmazuhui%5CDownloads%5Coffline_package%5C%E5%9B%BE%E6%96%87%E6%95%99%E7%A8%8B%5Cimage-20210705134802284.png" alt="image-20210705134802284"></p>
+<p>复制以下命令，粘贴到文本框中，点击上传。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">ingress-nginx</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">ingress-nginx</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">https</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">443</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">443</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">ingress-nginx</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-2-验证Ingress功能可用"><a href="#3-2-验证Ingress功能可用" class="headerlink" title="3.2 验证Ingress功能可用"></a>3.2 验证Ingress功能可用</h4><p>为方便测试，新建一个test空间</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="keyword">namespace</span> <span class="symbol">test</span></span><br></pre></td></tr></table></figure>
+
+<p>dashboard上切换到test命名空间后，添加以下yaml命令：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span> <span class="comment">#一个高层次自动维护replicaset的k8s资源类型</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myapp-deploy1</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span> <span class="comment">#声明deployment的作用域</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span> <span class="comment">#声明同时运行的pod的数量</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span> <span class="comment"># 标签选择器</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line">      <span class="attr">release:</span> <span class="string">v1</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span> <span class="comment"># 自定义标签</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line">        <span class="attr">release:</span> <span class="string">v1</span></span><br><span class="line">        <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">myapp</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:latest</span> <span class="comment">#docker镜像，默认从官方library拉取</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span> <span class="comment">#本地有则不拉取</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">          <span class="attr">containerPort:</span> <span class="number">80</span> <span class="comment">#容器暴露80端口</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span> <span class="comment">#为pod提供网络服务的k8s资源类型</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-svc</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span>  <span class="comment"># 默认类型</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">myapp</span> <span class="comment">#绑定deployment myapp-deploy1</span></span><br><span class="line">    <span class="attr">release:</span> <span class="string">v1</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">80</span> <span class="comment">#内部服务使用端口80</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">80</span> <span class="comment">#容器端口80</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myapp-deploy2</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line">      <span class="attr">release:</span> <span class="string">v2</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line">        <span class="attr">release:</span> <span class="string">v2</span></span><br><span class="line">        <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">myapp</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">registry.cn-beijing.aliyuncs.com/google_registry/myapp:v2</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">          <span class="attr">containerPort:</span> <span class="number">80</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myapp-svc</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span>  <span class="comment"># 默认类型</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line">    <span class="attr">release:</span> <span class="string">v2</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">80</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-http</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/proxy-body-size:</span> <span class="string">40m</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/rewrite-target:</span> <span class="string">"/$1"</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">test1.com</span></span><br><span class="line">      <span class="attr">http:</span></span><br><span class="line">        <span class="attr">paths:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">          <span class="attr">backend:</span></span><br><span class="line">            <span class="attr">serviceName:</span> <span class="string">nginx-svc</span></span><br><span class="line">            <span class="attr">servicePort:</span> <span class="number">80</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">test2.com</span></span><br><span class="line">      <span class="attr">http:</span></span><br><span class="line">        <span class="attr">paths:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">          <span class="attr">backend:</span></span><br><span class="line">            <span class="attr">serviceName:</span> <span class="string">myapp-svc</span></span><br><span class="line">            <span class="attr">servicePort:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>修改本机DNS，添加域名解析（ip地址可以为集群内任意一个node的ip）</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168.21.148</span> test1.com</span><br><span class="line"><span class="number">192.168.21.148</span> test2.com</span><br></pre></td></tr></table></figure>
+
+<p>浏览器中分别访问test1.com和test2.com，如果都有页面则该集群已成功启动。</p>
+<h5 id="删除测试环境："><a href="#删除测试环境：" class="headerlink" title="删除测试环境："></a>删除测试环境：</h5><p>先删除deployment资源，再删除service资源，接着删除ingress资源，最后再删除整个namespace</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/02/Harbor%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/" rel="prev" title="Harbor离线部署教程">
+      <i class="fa fa-chevron-left"></i> Harbor离线部署教程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/02/nfs%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/" rel="next" title="nfs离线部署教程">
+      nfs离线部署教程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#K8S离线安装图文教程"><span class="nav-number">1.</span> <span class="nav-text">K8S离线安装图文教程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境"><span class="nav-number">1.1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络拓扑图"><span class="nav-number">1.2.</span> <span class="nav-text">网络拓扑图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署流程"><span class="nav-number">1.3.</span> <span class="nav-text">部署流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-准备步骤"><span class="nav-number">1.3.1.</span> <span class="nav-text">0 准备步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0-1-传输文件"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">0.1 传输文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0-2-设置静态ip"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">0.2 设置静态ip</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0-3-设置时间服务器同步"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">0.3 设置时间服务器同步</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0-3-1-安装ntp服务"><span class="nav-number">1.3.1.3.1.</span> <span class="nav-text">0.3.1 安装ntp服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-3-2-配置ntp服务端"><span class="nav-number">1.3.1.3.2.</span> <span class="nav-text">0.3.2 配置ntp服务端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-3-3-配置ntp客户端"><span class="nav-number">1.3.1.3.3.</span> <span class="nav-text">0.3.3 配置ntp客户端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-3-4-启动服务和设置开机启动"><span class="nav-number">1.3.1.3.4.</span> <span class="nav-text">0.3.4 启动服务和设置开机启动</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-3-5-查看服务状态"><span class="nav-number">1.3.1.3.5.</span> <span class="nav-text">0.3.5 查看服务状态</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#查看ntp服务有无与上层ntp连通"><span class="nav-number">1.3.1.3.5.1.</span> <span class="nav-text">查看ntp服务有无与上层ntp连通</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#查看ntp服务器与上层ntp的状态"><span class="nav-number">1.3.1.3.5.2.</span> <span class="nav-text">查看ntp服务器与上层ntp的状态</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-部署Master机器"><span class="nav-number">1.3.2.</span> <span class="nav-text">1 部署Master机器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-升级系统内核"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">1.1 升级系统内核</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-更新系统内核"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">1.2 更新系统内核</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-生成K8S集群密钥"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">1.3 生成K8S集群密钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-安装K8S"><span class="nav-number">1.3.2.4.</span> <span class="nav-text">1.4 安装K8S</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-验证集群是否拉起成功"><span class="nav-number">1.3.2.5.</span> <span class="nav-text">1.5 验证集群是否拉起成功</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-部署Worker机器"><span class="nav-number">1.3.3.</span> <span class="nav-text">2 部署Worker机器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-升级系统内核"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">2.1 升级系统内核</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-复制K8S集群密钥到worker"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">2.2 复制K8S集群密钥到worker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-安装K8S并加入集群"><span class="nav-number">1.3.3.3.</span> <span class="nav-text">2.3 安装K8S并加入集群</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-调试K8S集群"><span class="nav-number">1.3.4.</span> <span class="nav-text">3 调试K8S集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-增加ingress-nginx服务"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">3.1 增加ingress-nginx服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-验证Ingress功能可用"><span class="nav-number">1.3.4.2.</span> <span class="nav-text">3.2 验证Ingress功能可用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#删除测试环境："><span class="nav-number">1.3.4.2.1.</span> <span class="nav-text">删除测试环境：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">马祖晖</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">感谢蔡思敏同志大力支持</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
